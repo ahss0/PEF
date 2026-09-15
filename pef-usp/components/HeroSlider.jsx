@@ -1,51 +1,48 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { fetchNoticias } from "@/lib/strapi";
 
-// Cada slide agora tem imagem, texto próprio e um link de destino.
-// Ajuste os campos abaixo (título, descrição, cta, href) conforme o conteúdo real.
-const SLIDES = [
-  {
-    image: "/img/slide1.jpg",
-    title: "Departamento de Engenharia de Estruturas e Geotécnica",
-    description:
-      "O PEF-EPUSP é um dos quatro departamentos responsáveis pela formação de alunos de graduação na habilitação em Engenharia Civil da Escola Politécnica. Ademais, é um dos quatro principais, dentre dezesseis departamentos da Universidade de São Paulo, responsáveis pela formação de alunos de graduação na habilitação em Engenharia Ambiental da Escola Politécnica. Também oferece disciplinas obrigatórias para todas as habilitações de graduação da Escola Politécnica, assim como habilitações do Instituto de Geociências e da Faculdade de Arquitetura e Urbanismo da USP.",
-    href: "/quem-somos",
-  },
-  {
-    image: "/img/slide2.jpg",
-    title: "Pesquisa",
-    description:
-      "Laboratórios e projetos que impactam a construção civil no Brasil.",
-    href: "/pesquisa",
-  },
-  {
-    image: "/img/slide3.jpg",
-    title: "Corpo Docente",
-    description: "Conheça os docentes que integram o departamento",
-    href: "/professores",
-  },
-  {
-    image: "/img/slide4.jpg",
-    title: "Extensão universitária",
-    description: "Projetos desenvolvidos por docentes e pesquisadores do PEF que integram a USP com a sociedade.",
-    href: "/extensao",
-  },
-  {
-    image: "/img/slide5.jpg",
-    title: "Fale com a gente",
-    description: "Tire suas dúvidas e entre em contato com o departamento.",
-    href: "/#contato",
-  },
-];
+// Imagem exibida quando a notícia não tem campo "imagem" preenchido no Strapi.
+// Coloque um arquivo em public/img/slide-default.jpg.
+const DEFAULT_IMAGE = "/img/slide-default.jpg";
 
 const AUTO_INTERVAL = 5000;
 
 export default function HeroSlider() {
+  const [noticias, setNoticias] = useState([]);
+  const [status, setStatus] = useState("loading"); // "loading" | "ready" | "error" | "empty"
   const [currentIndex, setCurrentIndex] = useState(0);
   const timerRef = useRef(null);
-  const router = useRouter();
+
+  // Busca as notícias em destaque assim que o componente monta.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadNoticias() {
+      try {
+        const data = await fetchNoticias();
+        if (cancelled) return;
+
+        if (!data || data.length === 0) {
+          setStatus("empty");
+          return;
+        }
+
+        setNoticias(data);
+        setStatus("ready");
+      } catch (err) {
+        console.error("Erro ao carregar notícias do slider:", err);
+        if (!cancelled) setStatus("error");
+      }
+    }
+
+    loadNoticias();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function stopAutoPlay() {
     if (timerRef.current) {
@@ -56,20 +53,24 @@ export default function HeroSlider() {
 
   function startAutoPlay() {
     stopAutoPlay();
+    if (noticias.length <= 1) return;
     timerRef.current = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+      setCurrentIndex((prev) => (prev + 1) % noticias.length);
     }, AUTO_INTERVAL);
   }
 
+  // Autoplay e navegação por teclado só fazem sentido depois que as notícias chegam.
   useEffect(() => {
+    if (status !== "ready") return;
+
     startAutoPlay();
 
     function handleKeyDown(e) {
       if (e.key === "ArrowLeft") {
-        setCurrentIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+        setCurrentIndex((prev) => (prev - 1 + noticias.length) % noticias.length);
         startAutoPlay();
       } else if (e.key === "ArrowRight") {
-        setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+        setCurrentIndex((prev) => (prev + 1) % noticias.length);
         startAutoPlay();
       }
     }
@@ -79,17 +80,18 @@ export default function HeroSlider() {
       stopAutoPlay();
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, noticias.length]);
 
   function handlePrev(e) {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+    setCurrentIndex((prev) => (prev - 1 + noticias.length) % noticias.length);
     startAutoPlay();
   }
 
   function handleNext(e) {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+    setCurrentIndex((prev) => (prev + 1) % noticias.length);
     startAutoPlay();
   }
 
@@ -99,16 +101,26 @@ export default function HeroSlider() {
     startAutoPlay();
   }
 
-  function handleSlideClick() {
-    const href = SLIDES[currentIndex].href;
-    if (href) router.push(href);
+  if (status === "loading") {
+    return (
+      <div className="hero-wrapper">
+        <div className="hero hero--loading" aria-label="Carregando destaques" />
+      </div>
+    );
   }
+
+  // Sem notícias em destaque ou erro na API: não quebra a página, só não renderiza o slider.
+  if (status === "error" || status === "empty") {
+    return null;
+  }
+
+  const atual = noticias[currentIndex];
 
   return (
     <div className="hero-wrapper">
       <div
         className="hero"
-        aria-label="Destaque"
+        aria-label="Notícias em destaque"
         onMouseEnter={stopAutoPlay}
         onMouseLeave={startAutoPlay}
       >
@@ -116,67 +128,61 @@ export default function HeroSlider() {
           className="hero-slides"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {SLIDES.map((slide, i) => (
+          {noticias.map((noticia) => (
             <div
-              key={slide.image}
+              key={noticia.id}
               className="hero-slide"
               style={{
-                backgroundImage: `url('${slide.image}')`,
-                cursor: slide.href ? "pointer" : "default",
-              }}
-              role={slide.href ? "link" : undefined}
-              tabIndex={slide.href ? 0 : undefined}
-              onClick={i === currentIndex ? handleSlideClick : undefined}
-              onKeyDown={(e) => {
-                if (i === currentIndex && slide.href && e.key === "Enter") {
-                  handleSlideClick();
-                }
+                backgroundImage: `url('${noticia.imagem || DEFAULT_IMAGE}')`,
               }}
             />
           ))}
         </div>
 
         <div className="hero-content">
-          <h1>{SLIDES[currentIndex].title}</h1>
+          <h1>{atual.titulo}</h1>
           <div className="hero-actions">
-            <p>{SLIDES[currentIndex].description}</p>
-            {SLIDES[currentIndex].href && (
-              <a
-                href={SLIDES[currentIndex].href}
-                className="btn"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Saiba mais
-              </a>
-            )}
+            {atual.corpo_texto && <p>{atual.corpo_texto}</p>}
+            {/* Página /noticias/[id] ainda não existe — será o próximo passo. */}
+            <Link
+              href={`/noticias/${atual.id}`}
+              className="btn"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Ver notícia
+            </Link>
           </div>
         </div>
 
-        <button
-          className="hero-nav-btn hero-nav-btn--prev"
-          aria-label="Slide anterior"
-          onClick={handlePrev}
-        >
-          ‹
-        </button>
-        <button
-          className="hero-nav-btn hero-nav-btn--next"
-          aria-label="Próximo slide"
-          onClick={handleNext}
-        >
-          ›
-        </button>
-
-        <div className="hero-dots" aria-hidden="true">
-          {SLIDES.map((_, i) => (
+        {noticias.length > 1 && (
+          <>
             <button
-              key={i}
-              className={i === currentIndex ? "is-active" : ""}
-              aria-label={`Slide ${i + 1}`}
-              onClick={(e) => handleDotClick(e, i)}
-            />
-          ))}
-        </div>
+              className="hero-nav-btn hero-nav-btn--prev"
+              aria-label="Slide anterior"
+              onClick={handlePrev}
+            >
+              ‹
+            </button>
+            <button
+              className="hero-nav-btn hero-nav-btn--next"
+              aria-label="Próximo slide"
+              onClick={handleNext}
+            >
+              ›
+            </button>
+
+            <div className="hero-dots" aria-hidden="true">
+              {noticias.map((noticia, i) => (
+                <button
+                  key={noticia.id}
+                  className={i === currentIndex ? "is-active" : ""}
+                  aria-label={`Slide ${i + 1}`}
+                  onClick={(e) => handleDotClick(e, i)}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

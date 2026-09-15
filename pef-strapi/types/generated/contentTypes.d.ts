@@ -564,6 +564,43 @@ export interface ApiLaboratorioLaboratorio extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiNoticiaNoticia extends Struct.CollectionTypeSchema {
+  collectionName: 'noticias';
+  info: {
+    displayName: 'Noticia';
+    pluralName: 'noticias';
+    singularName: 'noticia';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    arquivos: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    corpo_texto: Schema.Attribute.Text;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    data_limite: Schema.Attribute.Date;
+    destaque: Schema.Attribute.Boolean;
+    imagem: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    link: Schema.Attribute.Component<'categoria.links', true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::noticia.noticia'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    titulo: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPesquisaPesquisa extends Struct.SingleTypeSchema {
   collectionName: 'pesquisas';
   info: {
@@ -1200,6 +1237,7 @@ declare module '@strapi/strapi' {
       'api::extensao.extensao': ApiExtensaoExtensao;
       'api::ic.ic': ApiIcIc;
       'api::laboratorio.laboratorio': ApiLaboratorioLaboratorio;
+      'api::noticia.noticia': ApiNoticiaNoticia;
       'api::pesquisa.pesquisa': ApiPesquisaPesquisa;
       'api::posdoc.posdoc': ApiPosdocPosdoc;
       'api::professor.professor': ApiProfessorProfessor;
