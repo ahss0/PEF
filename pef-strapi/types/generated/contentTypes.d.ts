@@ -583,7 +583,7 @@ export interface ApiNoticiaNoticia extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    data_limite: Schema.Attribute.Date;
+    data_postagem: Schema.Attribute.Date;
     destaque: Schema.Attribute.Boolean;
     imagem: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     link: Schema.Attribute.Component<'categoria.links', true>;

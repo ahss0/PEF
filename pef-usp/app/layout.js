@@ -1,8 +1,11 @@
 import "../styles/globals.css";
 import "../styles/professores.css";
-import "../styles/extensao.css"
-import "../styles/noticias.css"
-
+import "../styles/extensao.css";
+import "../styles/noticias.css";
+import "../styles/laboratorios.css";
+import "../styles/pos-graduacao.css"
+import "../styles/graduacao.css"
+import "../styles/teses.css"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 

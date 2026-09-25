@@ -1,10 +1,12 @@
+import NewsHeroSlider from "@/components/NewsHeroSlider";
+
 export default function ExtensaoPage() {
 
   return (
     <main>
       <section className="container extensao">
         <h1>Noticias</h1>
-
+        <NewsHeroSlider />
         <section className="section home-news-section" aria-labelledby="noticias-title">
           <div className="news-panel">
             <div className="section-head">
@@ -18,8 +20,8 @@ export default function ExtensaoPage() {
             </div>
           </div>
         </section>
-      </section>
-    </main>
+      </section >
+    </main >
   );
 }
 

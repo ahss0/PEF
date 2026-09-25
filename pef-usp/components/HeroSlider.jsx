@@ -6,7 +6,7 @@ import { fetchNoticias } from "@/lib/strapi";
 
 // Imagem exibida quando a notícia não tem campo "imagem" preenchido no Strapi.
 // Coloque um arquivo em public/img/slide-default.jpg.
-const DEFAULT_IMAGE = "/img/slide-default.jpg";
+const DEFAULT_IMAGE = "/img/slide1.jpg";
 
 const AUTO_INTERVAL = 5000;
 
@@ -143,7 +143,6 @@ export default function HeroSlider() {
           <h1>{atual.titulo}</h1>
           <div className="hero-actions">
             {atual.corpo_texto && <p>{atual.corpo_texto}</p>}
-            {/* Página /noticias/[id] ainda não existe — será o próximo passo. */}
             <Link
               href={`/noticias/${atual.id}`}
               className="btn"
