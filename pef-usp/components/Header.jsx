@@ -25,6 +25,8 @@ const NAV_ITEMS = [
     dropdown: [
       { label: "Laboratórios", href: "/pesquisa/lab" },
       { label: "Teses, Dissertações e Monografias", href: "/pesquisa/teses" },
+      { label: "Mestrado/Doutorado", href: "/pesquisa/pos" },
+      { label: "Iniciação Científica", href: "/pesquisa/ic" }
     ],
   },
   { label: "Extensão", href: "/extensao" },
