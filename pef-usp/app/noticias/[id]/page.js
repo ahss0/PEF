@@ -140,6 +140,9 @@ export default function NoticiaPage() {
         {/* 1. Título */}
         <h1 className="noticia-detail-titulo">{noticia.titulo}</h1>
 
+        {noticia.data_postagem && (<div className="noticia-data">Postado em {noticia.data_postagem}</div>
+        )}
+
         {/* 2. Foto da notícia, em tamanho médio, só se houver */}
         {noticia.imagem && (
           <img

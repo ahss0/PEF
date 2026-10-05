@@ -1,21 +1,5 @@
 import HeroSlider from "@/components/HeroSlider";
 
-/*const NOTICIAS = [
-  {
-    titulo: "Novo curso de aperfeiçoamento TGObras é lançado pelo departamento",
-    resumo:
-      "Iniciativa amplia a formação continuada de profissionais da construção civil.",
-  },
-  {
-    titulo: "Pesquisa do PCC-USP discute mobilidade urbana para pessoas 60+",
-    resumo: "Projeto avalia acessibilidade e inclusão nas cidades brasileiras.",
-  },
-  {
-    titulo: "Docentes do departamento participam de live sobre TGObras",
-    resumo: "Encontro reuniu professores e egressos para discutir o mercado.",
-  },
-];*/
-
 export const metadata = {
   title: "Home | PEF USP",
 };

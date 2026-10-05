@@ -4,6 +4,18 @@
 // e v5 (campos direto em data.*), normalizeProfessor() trata os dois casos
 // automaticamente, então esse código funciona nas duas versões sem alteração.
 
+
+function formataData(data) {
+
+  var data_limpa = data.substring(0, 10);
+  var array_data = data_limpa.split("-");
+  var formatada = array_data[2] + "/" + array_data[1] + "/" + array_data[0];
+
+  return formatada;
+}
+
+
+
 const STRAPI_URL =
   process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
@@ -97,26 +109,17 @@ export function normalizeNoticia(item) {
   const attrs = item.attributes ?? item;
 
   return {
-    // No Strapi v5 o findOne (/api/noticias/:id) espera o documentId, não o
-    // id numérico autoincremental. Em v4 não existe documentId, então cai
-    // para item.id normalmente. Usar esse valor em todo link/fetch de
-    // notícia individual garante compatibilidade com as duas versões.
+
     id: item.documentId ?? item.id,
     titulo: attrs.titulo ?? "",
     corpo_texto: attrs.corpo_texto ?? "",
-    data_limite: attrs.data_limite ?? null,
+    data_postagem: formataData(attrs.createdAt) ?? null,
     // Lista de arquivos (pdfs, imagens, docs etc.) exibidos na área de
     // arquivos da página de notícia, cada um com url/nome/mime/ext.
     arquivos: getStrapiMediaList(attrs.arquivos),
     // Campo novo (ainda precisa ser criado no Content-Type "noticias" no Strapi).
     // Usado pelo HeroSlider como imagem de fundo do slide.
     imagem: getStrapiMedia(attrs.imagem),
-    // Flag nova (ainda precisa ser criada no Strapi, tipo Boolean).
-    // Marca quais notícias devem aparecer no slider da home ("alta importância").
-    destaque: attrs.destaque ?? false,
-    // O campo no Strapi se chama "link" (singular, componente repetível
-    // com label e url). Aqui normalizamos para "links" (plural) porque é
-    // uma lista de itens.
     links: (attrs.link ?? []).map((link) => {
       const linkAttrs = link.attributes ?? link;
       return {
@@ -272,7 +275,7 @@ export async function fetchNoticiaById(id) {
 export async function fetchNoticias() {
 
   const res = await fetch(
-    `${STRAPI_URL}/api/noticias?populate=imagem&filters[destaque][$eq]=true&sort=data_limite:desc`
+    `${STRAPI_URL}/api/noticias?populate=imagem&filters[destaque][$eq]=true`
   );
 
   if (!res.ok) {

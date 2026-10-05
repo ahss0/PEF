@@ -16,10 +16,8 @@ const NAV_ITEMS = [
   {
     label: "Ensino",
     dropdown: [
-      { label: "Graduação", href: "#" },
-      { label: "Mestrado / Doutorado Acadêmico", href: "#" },
-      { label: "Mestrado Profissional", href: "#" },
-      { label: "Especialização", href: "#" },
+      { label: "Graduação", href: "/ensino/graduacao" },
+      { label: "Pós-graduação", href: "/ensino/pos-graduacao" },
     ],
   },
   {
@@ -27,8 +25,8 @@ const NAV_ITEMS = [
     dropdown: [
       { label: "Laboratórios", href: "/pesquisa/lab" },
       { label: "Teses, Dissertações e Monografias", href: "/pesquisa/teses" },
-      { label: "Pós-Doutorado", href: "/pesquisa/posdoc" },
-      { label: "Iniciação Científica", href: "/pesquisa/ic" },
+      { label: "Mestrado/Doutorado", href: "/pesquisa/pos" },
+      { label: "Iniciação Científica", href: "/pesquisa/ic" }
     ],
   },
   { label: "Extensão", href: "/extensao" },
